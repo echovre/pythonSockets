@@ -1,37 +1,30 @@
-import socket
+from collections import deque
+import socket, constants
 
-HEADERSIZE = 10
+address = socket.gethostname()
 
-port = 1024 #min port without privilege
-address=socket.gethostname()
-sock = socket.socket()
-#sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+numFiles=0
+requests=deque(maxlen=None)
+requests.append("/")
 
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.connect((socket.gethostname(), 1024))
-
-while True:
-    full_msg = ''
-    new_msg = True
-    while True:
-        message = sock.recv(16)
-        if new_msg:
-            print("new msg len:",message[:HEADERSIZE])
-            messagelength = int(message[:HEADERSIZE])
-            new_msg = False
-
-        print(f"full message length: {messagelength}")
-
-        full_msg += message.decode("utf-8")
-
-        print(len(full_msg))
-
-        print(full_msg)
-
-        if len(full_msg)-HEADERSIZE == messagelength:
-            print("full msg recvd")
-            print(full_msg[HEADERSIZE:])
-            new_msg = True
+def traverse(data, startingDir):
+    dataArray=data.decode().split("\n")
+    if dataArray[0]==constants.header: dataArray.pop(0)
+    if dataArray[-1]==constants.footer: dataArray.pop(-1)
+    for each in dataArray:
+        if each.endswith("/"):
+            requests.append(startingDir+each)
+            print("Found directory:"+startingDir+each)
+        elif "file" in each:
+            numFiles=numFiles+1
+            print("Found file:"+startingDir+each+" for total of:"+numFiles)
 
 
-#https://pythonprogramming.net/buffering-streaming-data-sockets-tutorial-python-3/?completed=/sockets-tutorial-python-3/
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.connect((address, constants.port))
+    startingDir='/'
+    sock.sendall( ('DIRLIST '+startingDir).encode() )
+    #sock.sendall(b'DIRLIST dir_00/dir_01/dir_99/') #invalid
+    data = sock.recv(constants.RECIEVE_SIZE)
+    traverse(data, startingDir)
