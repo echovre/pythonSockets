@@ -3,16 +3,6 @@ import socket, constants
 address = socket.gethostname()
 #address = '' #requests from others on network
 
-"""
-HEADER_SIZE = 10
-RECIEVE_SIZE = 1024
-port = 1024 #min unprivileged port
-NUM_DIRECTORIES = 99
-header = "BEGIN"
-#header = f"{len(header):<{HEADER_SIZE}}"+header
-footer = "END"
-"""
-
 #function contract: spaces in directory path will be ignored
 def handleCommand(data):
     if " " in data: print("WARNING: space in directory path:",data)
