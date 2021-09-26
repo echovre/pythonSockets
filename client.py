@@ -18,6 +18,8 @@ def processResult(data, startingDir):
         elif "file" in each:
             print("Found file:"+startingDir+each+" for total of:"+str(numFiles))
             numFiles=numFiles+1
+        else:
+            print("ERROR, received:"+each)
 
 def traverse():
     print(len(requests))
@@ -29,20 +31,26 @@ def traverse():
         processResult(data, request)
     else:
         print("Done")
+        diff=time.time()-start
+        print(diff,"seconds")
         exit()
+
+import time
+start=time.time()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.connect((address, constants.port))
     """
     startingDir='/'
-    sock.sendall( ('DIRLIST '+startingDir).encode() )
-    sock.sendall(b'DIRLIST dir_00/dir_01/dir_99/') #invalid
+    sock.sendall( ('DIRLIST '+'/dir_08/').encode() )
+    #sock.sendall(b'DIRLIST dir_00/dir_01/dir_99/') #invalid
     data = sock.recv(constants.RECIEVE_SIZE)
     processResult(data, startingDir)
     """
+
     while True:
         stop=traverse()
         if stop:
             break
-    
+ 

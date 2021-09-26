@@ -19,7 +19,7 @@ def handleCommand(data):
 
 def returnNothing():
     #return header+"\n"+footer
-    return "ERROR: invalid command, check that your path begins with root /"
+    return "ERROR: invalid command"
 
 def generateResponse(listingArray):
     response = constants.header+"\n"
