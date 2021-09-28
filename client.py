@@ -29,11 +29,12 @@ def traverse():
         sock.sendall( ('DIRLIST '+request).encode() )
         data = sock.recv(constants.RECIEVE_SIZE)
         processResult(data, request)
+        return False
     else:
         print("Done")
         diff=time.time()-start
         print(diff,"seconds")
-        exit()
+        return True
 
 import time
 start=time.time()
