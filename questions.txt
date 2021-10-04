@@ -1,0 +1,40 @@
+If you completed the code challenge, congratulations! Please also answer the following:
+
+1. How long did client.py run, and what was the peak memory usage?
+
+Client run varied between 174-245 seconds.
+Peak memory usage was observed to be roughly 240-250MB (measured as 2.350GB/2.110GB base)
+Max CPU usage was 96%.
+
+
+2. Why should the DIRLIST success and/or error response be in JSON format?
+
+I'm assuming that were thinking more about comparing a JSON response vs a custom text-based format(START and END lines for example) as opposed to JSON vs another format like XML:
+
+From a human perspective, everyone knows it. A developer who isn't familiar with a piece of code will immediately be able to understand input/output in JSON, as opposed to spending time understanding how a text-based system works or digging through XML schema. Compared to plain text which can have any format, JSON makes it less likely that future devs unfamiliar with the code will get bogged down in the minutiae of string parsing and thus will be effective quicker.
+
+From a machine perspective, parsing is easier and less complex(at the possible expense of speed, discussed below):
+- JSON has more structure in the payload(ie. clear fields and subfields) as opposed to plain text, which leads to less manual/custom parsing on the receiving end and an easier time storing hierarchical data. It is thus "self documenting".
+- Near-universal compatibility. JSON is easy to parse and validate(oftentimes with prebuilt libraries and/or built in parsing), so there's less that can go wrong in this area. This also helps when integrating with other systems which will take the information in the JSON output and do something with it.
+- Representation of data types (ie. "string", 142, False, etc) are more clear in JSON, which leads to less manual parsing/custom parsing on the receiving end
+- Data stored in arrays, which means less iterating and looking for start and end delimiters, making accessing data easier in parsing
+
+
+3. Why should the DIRLIST success and/or error response ​ not ​ be in JSON format?
+
+- Faster parsing. All those extra characters like { "" : "" } can add up over large sets of data. Same with repeated field names ie. {"name":["firstName":"Joe","lastName":"Smith"]} as opposed to something like
+    firstName,Joe
+    lastName,Smith
+- JSON requires UTF-8 encoding as recently as I know. Escape sequences can be used but this increases complexity.
+- Combining independent sets of JSON data can result in field name collisions(and thus requires validation).
+- JSON has no error handling or mechanism for retransmit of corrupt/missing data like TCP has for example.
+- No strict schema support(ie. fields can have any name or hierarchy), so more that can go wrong in this area(missing data, etc).
+
+
+4. What are reason(s) why DFS (depth first search) would be a bad choice for scanning a
+directory tree over the network?
+
+- DFS prioritizes traversing the entirety of a subdirectory before moving on to the next, so we dont get an idea of the directory structure until close to the end of traversing the directory tree.
+- This makes it hard to parallelize transfers since we must juggle exploration and transmission at the same time.
+- A user might want to get an idea of what's there before transmitting, and thus would be waiting for a long time before being shown even a top-level directory listing.
+- We may want to skip over some data (ie. copy for me all subdirectories that don't contain binary data) and would want to spend time traverse down those directories.
